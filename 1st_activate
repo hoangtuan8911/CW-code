@@ -1,0 +1,29 @@
+public SystemLicense()
+    {
+      this.strHardDiskID = string.Empty;
+      this.RunTimeNumberLong = 0;
+      using (ManagementObjectCollection.ManagementObjectEnumerator enumerator = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMedia").Get().GetEnumerator())
+      {
+        if (enumerator.MoveNext())
+          this.strHardDiskID = enumerator.Current["SerialNumber"].ToString().Trim();
+      }
+      try
+      {
+        this.RunTimeNumberLong = (int) Registry.GetValue("HKEY_CURRENT_USER\\SOFTWARE\\Cparameters", "Cparameters", (object) 0);
+      }
+      catch
+      {
+        Registry.SetValue("HKEY_CURRENT_USER\\SOFTWARE\\Cparameters", "Cparameters", (object) 0, RegistryValueKind.DWord);
+      }
+      this.licensecode = 0L;
+      int length = this.strHardDiskID.Length;
+      string empty = string.Empty;
+      for (int index = 0; index < length; ++index)
+      {
+        char ch = this.strHardDiskID[index];
+        if (ch >= '0' && ch <= '9')
+          empty += ch.ToString();
+      }
+      this.licensecode = long.Parse(empty);
+      this.licensecode = this.licensecode * 2L % 1000000L;
+    }
